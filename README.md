@@ -1,4 +1,4 @@
-# Project: du-exporter
+# du-exporter
 
 ## Overview
 
