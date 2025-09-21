@@ -1,0 +1,9 @@
+### Healthcheck
+GET http://localhost:8080/healthz
+Accept: application/json
+
+
+### Prometheus
+GET http://localhost:8080/metrics
+Accept: text/plain
+
