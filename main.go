@@ -173,10 +173,15 @@ func runService(cmd *cobra.Command, args []string) {
 	log.Printf("Starting service, watching root: %s (scanning every %d seconds)", rootPath, intervalSec)
 
 	go func() {
-		for {
+		scanFolder(rootPath)
+		updateDiskMetrics(rootPath)
+
+		ticker := time.NewTicker(time.Duration(intervalSec) * time.Second)
+		defer ticker.Stop()
+
+		for range ticker.C {
 			scanFolder(rootPath)
 			updateDiskMetrics(rootPath)
-			time.Sleep(time.Duration(intervalSec) * time.Second)
 		}
 	}()
 

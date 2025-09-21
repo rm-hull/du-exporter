@@ -1,7 +1,7 @@
 FROM golang:1.25-alpine AS build
 
 RUN apk update && \
-    apk add --no-cache ca-certificates tzdata git make curl nodejs npm build-base && \
+    apk add --no-cache ca-certificates tzdata && \
     update-ca-certificates
 
 RUN adduser -D -g '' appuser
@@ -19,7 +19,6 @@ ENV GOOS=linux
 RUN make build
 
 FROM alpine:latest AS runtime
-ENV GIN_MODE=release
 ENV TZ=UTC
 
 RUN apk --no-cache add curl ca-certificates tzdata && \
