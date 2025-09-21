@@ -16,7 +16,7 @@ COPY . .
 ENV CGO_ENABLED=1
 ENV GOOS=linux
 
-RUN make build
+RUN go build -ldflags="-w -s" -o du-exporter .
 
 FROM alpine:latest AS runtime
 ENV TZ=UTC
