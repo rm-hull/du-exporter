@@ -1,11 +1,11 @@
-package metrics
+package internal
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	FileCount = prometheus.NewGaugeVec(
+	fileCount = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_subfolder_file_count",
 			Help: "Number of files in a subfolder",
@@ -13,7 +13,7 @@ var (
 		[]string{"folder"},
 	)
 
-	TotalSize = prometheus.NewGaugeVec(
+	totalSize = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_subfolder_total_size_bytes",
 			Help: "Total size of files in a subfolder (bytes)",
@@ -21,7 +21,7 @@ var (
 		[]string{"folder"},
 	)
 
-	NewestMTime = prometheus.NewGaugeVec(
+	newestMTime = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_subfolder_newest_mtime_seconds",
 			Help: "Modification time of the newest file in a subfolder (epoch seconds)",
@@ -29,7 +29,7 @@ var (
 		[]string{"folder"},
 	)
 
-	OldestMTime = prometheus.NewGaugeVec(
+	oldestMTime = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_subfolder_oldest_mtime_seconds",
 			Help: "Modification time of the oldest file in a subfolder (epoch seconds)",
@@ -37,7 +37,7 @@ var (
 		[]string{"folder"},
 	)
 
-	ScanDuration = prometheus.NewHistogram(
+	scanDuration = prometheus.NewHistogram(
 		prometheus.HistogramOpts{
 			Name:    "du_scan_duration_seconds",
 			Help:    "Duration of the folder scan in seconds",
@@ -45,21 +45,21 @@ var (
 		},
 	)
 
-	ScanCount = prometheus.NewCounter(
+	scanCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "du_scan_total",
 			Help: "Total number of folder scans performed",
 		},
 	)
 
-	ScanErrors = prometheus.NewCounter(
+	scanErrors = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "du_scan_errors_total",
 			Help: "Total number of folder scan errors",
 		},
 	)
 
-	DiskTotal = prometheus.NewGaugeVec(
+	diskTotal = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_disk_total_bytes",
 			Help: "Total bytes on the filesystem of a path",
@@ -67,7 +67,7 @@ var (
 		[]string{"path"},
 	)
 
-	DiskUsed = prometheus.NewGaugeVec(
+	diskUsed = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_disk_used_bytes",
 			Help: "Used bytes on the filesystem of a path",
@@ -75,7 +75,7 @@ var (
 		[]string{"path"},
 	)
 
-	DiskFreePercent = prometheus.NewGaugeVec(
+	diskFreePercent = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "du_disk_free_percent",
 			Help: "Percentage of free space on the filesystem of a path",
@@ -86,8 +86,8 @@ var (
 
 func init() {
 	prometheus.MustRegister(
-		FileCount, TotalSize, NewestMTime, OldestMTime,
-		DiskTotal, DiskUsed, DiskFreePercent,
-		ScanDuration, ScanCount, ScanErrors,
+		fileCount, totalSize, newestMTime, oldestMTime,
+		diskTotal, diskUsed, diskFreePercent,
+		scanDuration, scanCount, scanErrors,
 	)
 }
