@@ -13,15 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	rootPath    string
-	intervalSec int
-	port        int
-
-	logger *zap.Logger
-)
-
-func runService(cmd *cobra.Command, args []string) {
+func runService(rootPath string, intervalSec int, port int, logger *zap.Logger) {
 	logger.Info("Starting service",
 		zap.String("root", rootPath),
 		zap.Int("interval", intervalSec),
@@ -51,8 +43,11 @@ func runService(cmd *cobra.Command, args []string) {
 }
 
 func main() {
-	var err error
-	logger, err = zap.NewProduction()
+	var rootPath string
+	var intervalSec int
+	var port int
+
+	logger, err := zap.NewProduction()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "can't initialize zap logger: %v\n", err)
 		os.Exit(1)
@@ -66,7 +61,9 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "du-exporter",
 		Short: "Expose Prometheus metrics for files in subfolders",
-		Run:   runService,
+		Run: func(cmd *cobra.Command, args []string) {
+			runService(rootPath, intervalSec, port, logger)
+		},
 	}
 
 	rootCmd.Flags().StringVar(&rootPath, "root", "./watched", "Root folder to watch for files")
