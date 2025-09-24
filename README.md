@@ -82,6 +82,9 @@ du_scan_duration_seconds_bucket{le="10"} 9
 du_scan_duration_seconds_bucket{le="+Inf"} 9
 du_scan_duration_seconds_sum 0.6477451670000001
 du_scan_duration_seconds_count 9
+# HELP du_scan_errors_total Total number of folder scan errors
+# TYPE du_scan_errors_total counter
+du_scan_errors_total 0
 # HELP du_scan_total Total number of folder scans performed
 # TYPE du_scan_total counter
 du_scan_total 9
