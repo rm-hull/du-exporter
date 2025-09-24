@@ -82,12 +82,20 @@ var (
 		},
 		[]string{"path"},
 	)
+
+	diskUsedPercent = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_disk_used_percent",
+			Help: "Percentage of used space on the filesystem of a path",
+		},
+		[]string{"path"},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(
 		fileCount, totalSize, newestMTime, oldestMTime,
-		diskTotal, diskUsed, diskFreePercent,
+		diskTotal, diskUsed, diskFreePercent, diskUsedPercent,
 		scanDuration, scanCount, scanErrors,
 	)
 }

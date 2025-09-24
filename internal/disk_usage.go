@@ -22,4 +22,5 @@ func UpdateDiskMetrics(path string, logger *zap.Logger) {
 	diskTotal.WithLabelValues(path).Set(float64(total))
 	diskUsed.WithLabelValues(path).Set(float64(used))
 	diskFreePercent.WithLabelValues(path).Set(freePercent)
+	diskUsedPercent.WithLabelValues(path).Set(100.0 - freePercent)
 }
