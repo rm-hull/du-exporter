@@ -11,6 +11,12 @@
 
 These metrics are exposed via an HTTP server, making them easily consumable by Prometheus. The application uses `cobra` for command-line argument parsing.
 
+### Grafana Dashboard
+
+A sample Grafana [dashboard.json](./dashboard.json) is available:
+
+![image](./docs/dashboard.webp)
+
 ## Technologies
 
 -   **Language:** Go (version 1.25)

@@ -57,14 +57,14 @@
         ],
         "legend": {
           "displayMode": "table",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true,
           "values": [
             "value",
             "percent"
           ]
         },
-        "pieType": "pie",
+        "pieType": "donut",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -744,9 +744,11 @@
     "list": [
       {
         "current": {
-          "text": "All",
+          "text": [
+            "street-manager-relay"
+          ],
           "value": [
-            "$__all"
+            "street-manager-relay"
           ]
         },
         "includeAll": true,
@@ -768,5 +770,5 @@
   "timezone": "browser",
   "title": "Disk Usage & Folder Scan Dashboard",
   "uid": "4a79c6e8-4596-4d40-8032-165a5dfb58da",
-  "version": 25
+  "version": 27
 }
