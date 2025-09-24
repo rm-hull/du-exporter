@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"syscall"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rm-hull/du-exporter/internal"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -21,24 +21,6 @@ var (
 	logger *zap.Logger
 )
 
-func updateDiskMetrics(path string) {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(path, &stat); err != nil {
-		logger.Error("Error getting disk stats", zap.String("path", path), zap.Error(err))
-		scanErrors.Inc()
-		return
-	}
-
-	total := stat.Blocks * uint64(stat.Bsize)
-	free := stat.Bavail * uint64(stat.Bsize) // available to non-root
-	used := total - free
-	freePercent := (float64(free) / float64(total)) * 100
-
-	diskTotal.WithLabelValues(path).Set(float64(total))
-	diskUsed.WithLabelValues(path).Set(float64(used))
-	diskFreePercent.WithLabelValues(path).Set(freePercent)
-}
-
 func runService(cmd *cobra.Command, args []string) {
 	logger.Info("Starting service",
 		zap.String("root", rootPath),
@@ -46,15 +28,15 @@ func runService(cmd *cobra.Command, args []string) {
 	)
 
 	go func() {
-		scanFolder(rootPath)
-		updateDiskMetrics(rootPath)
+		internal.ScanFolder(rootPath, logger)
+		internal.UpdateDiskMetrics(rootPath, logger)
 
 		ticker := time.NewTicker(time.Duration(intervalSec) * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {
-			scanFolder(rootPath)
-			updateDiskMetrics(rootPath)
+			internal.ScanFolder(rootPath, logger)
+			internal.UpdateDiskMetrics(rootPath, logger)
 		}
 	}()
 
