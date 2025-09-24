@@ -54,7 +54,7 @@ func main() {
 	var err error
 	logger, err = zap.NewProduction()
 	if err != nil {
-		fmt.Printf("can't initialize zap logger: %v", err)
+		fmt.Fprintf(os.Stderr, "can't initialize zap logger: %v\n", err)
 		os.Exit(1)
 	}
 	defer func() {
