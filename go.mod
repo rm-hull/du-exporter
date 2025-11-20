@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/prometheus/client_golang v1.23.2
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 )
 
 require (
