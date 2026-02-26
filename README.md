@@ -19,7 +19,7 @@ A sample Grafana [dashboard.json](./dashboard.json) is available:
 
 ## Technologies
 
--   **Language:** Go (version 1.25)
+-   **Language:** Go (version 1.26)
 -   **Metrics:** Prometheus client library (`github.com/prometheus/client_golang`)
 -   **CLI:** Cobra (`github.com/spf13/cobra`)
 -   **Containerization:** Docker
@@ -29,7 +29,7 @@ A sample Grafana [dashboard.json](./dashboard.json) is available:
 
 ### Prerequisites
 
--   Go (version 1.25 or later)
+-   Go (version 1.26 or later)
 -   Docker (optional, for containerized deployment)
 
 ### Build
