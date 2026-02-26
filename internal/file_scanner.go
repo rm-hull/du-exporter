@@ -8,20 +8,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func ScanFiles(root string, globs []string, logger *zap.Logger) error {
+func ScanFiles(root string, globs []string, logger *zap.Logger) {
 	if len(globs) == 0 {
 		if logger != nil {
 			logger.Warn("ScanFiles called with no globs; nothing to match")
 		}
-		return nil
+		return
 	}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil {
-			if logger != nil {
-				logger.Error("error walking path", zap.String("path", path), zap.Error(walkErr))
-			}
-			// don't stop walk on single-file error
+			logger.Error("error walking path", zap.String("path", path), zap.Error(walkErr))
+			scanErrors.Inc()
 			return nil
 		}
 
@@ -42,9 +40,8 @@ func ScanFiles(root string, globs []string, logger *zap.Logger) error {
 		for _, pat := range globs {
 			ok, matchErr := doublestar.PathMatch(pat, matchTarget)
 			if matchErr != nil {
-				if logger != nil {
-					logger.Error("glob match error", zap.String("pattern", pat), zap.String("path", matchTarget), zap.Error(matchErr))
-				}
+				logger.Error("glob match error", zap.String("pattern", pat), zap.String("path", matchTarget), zap.Error(matchErr))
+				scanErrors.Inc()
 				continue
 			}
 			if ok {
@@ -61,11 +58,7 @@ func ScanFiles(root string, globs []string, logger *zap.Logger) error {
 	})
 
 	if err != nil {
-		if logger != nil {
-			logger.Error("error walking root folder", zap.String("root", root), zap.Error(err))
-		}
-		return err
+		logger.Error("error walking root folder", zap.String("root", root), zap.Error(err))
+		scanErrors.Inc()
 	}
-
-	return nil
 }
