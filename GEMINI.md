@@ -13,7 +13,7 @@ These metrics are exposed via an HTTP server, making them easily consumable by P
 
 ## Technologies
 
-*   **Language:** Go (version 1.25)
+*   **Language:** Go (version 1.26)
 *   **Metrics:** Prometheus client library (`github.com/prometheus/client_golang`)
 *   **CLI:** Cobra (`github.com/spf13/cobra`)
 *   **Containerization:** Docker
@@ -23,7 +23,7 @@ These metrics are exposed via an HTTP server, making them easily consumable by P
 
 ### Prerequisites
 
-*   Go (version 1.25 or later)
+*   Go (version 1.26 or later)
 *   Docker (optional, for containerized deployment)
 
 ### Build

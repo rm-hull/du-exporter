@@ -90,12 +90,20 @@ var (
 		},
 		[]string{"path"},
 	)
+
+	fileSize = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_file_size_bytes",
+			Help: "Size of files matching configured globs (bytes)",
+		},
+		[]string{"path"},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(
 		fileCount, totalSize, newestMTime, oldestMTime,
 		diskTotal, diskUsed, diskFreePercent, diskUsedPercent,
-		scanDuration, scanCount, scanErrors,
+		scanDuration, scanCount, scanErrors, fileSize,
 	)
 }
