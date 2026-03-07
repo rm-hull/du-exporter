@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
   "links": [],
   "panels": [
     {
@@ -30,14 +29,20 @@
           "color": {
             "mode": "palette-classic"
           },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
           "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "bytes"
         },
         "overrides": []
@@ -50,35 +55,30 @@
       },
       "id": 8,
       "options": {
-        "displayLabels": [
-          "name",
-          "value"
-        ],
+        "displayMode": "basic",
         "legend": {
-          "displayMode": "table",
+          "calcs": [],
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false,
-          "values": [
-            "value",
-            "percent"
-          ]
+          "showLegend": false
         },
-        "pieType": "donut",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "top",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
         },
-        "sort": "desc",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_subfolder_total_size_bytes",
@@ -87,7 +87,7 @@
         }
       ],
       "title": "Subfolder Size Distribution",
-      "type": "piechart"
+      "type": "bargauge"
     },
     {
       "fieldConfig": {
@@ -168,7 +168,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_disk_total_bytes",
@@ -235,7 +235,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_disk_used_percent",
@@ -329,7 +329,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "rate(du_scan_duration_seconds_sum[5m]) / rate(du_scan_duration_seconds_count[5m])",
@@ -421,7 +421,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "editorMode": "code",
@@ -478,7 +478,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_scan_errors_total",
@@ -566,7 +566,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_subfolder_file_count{folder=~\"$folder\"}",
@@ -659,7 +659,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_subfolder_total_size_bytes{folder=~\"$folder\"}",
@@ -712,7 +712,7 @@
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.4.0",
       "targets": [
         {
           "expr": "du_subfolder_newest_mtime_seconds{folder=~\"$folder\"}",
@@ -747,6 +747,7 @@
         "options": [],
         "query": "label_values(du_subfolder_file_count, folder)",
         "refresh": 1,
+        "regexApplyTo": "value",
         "type": "query"
       }
     ]
@@ -759,5 +760,6 @@
   "timezone": "browser",
   "title": "Disk Usage & Folder Scan Dashboard",
   "uid": "4a79c6e8-4596-4d40-8032-165a5dfb58da",
-  "version": 30
+  "version": 3,
+  "weekStart": ""
 }
