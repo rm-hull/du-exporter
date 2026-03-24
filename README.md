@@ -57,6 +57,7 @@ The application can be run directly from the command line:
 -   `--root`: Specifies the root folder to watch for files (default: `./watched`).
 -   `--interval`: Sets the scan interval in seconds (default: `300`).
 -   `--port`: Sets the port for the HTTP server (default: `8080`).
+-   `--glob`: Sets the File glob patterns to include (can specify multiple) (example: `**/*.db`).
 
 The application will expose metrics at `http://localhost:<port>/metrics` and a health check endpoint at `http://localhost:<port>/healthz`.
 
