@@ -112,7 +112,8 @@ jobs:
             type=sha
           labels: |
             maintainer=rm-hull
-            org.opencontainers.image.description=REST API for GPS routes
+            org.opencontainers.image.description=Containerized app designed to mimic the functionality of the Unix du command, specifically for exporting Prometheus metrics related to subfolder disk usage. It scans a specified root directory and its subfolders, collecting various file based metrics.
+            org.opencontainers.image.source="https://github.com/rm-hull/du-exporter"
             org.opencontainers.image.licenses=MIT
 
       - name: Build and push Docker image
