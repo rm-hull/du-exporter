@@ -3,7 +3,7 @@ module github.com/rm-hull/du-exporter
 go 1.26
 
 require (
-	github.com/prometheus/client_golang v1.23.2
+	github.com/prometheus/client_golang v1.24.0
 	go.uber.org/zap v1.28.0
 )
 
