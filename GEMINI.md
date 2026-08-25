@@ -4,27 +4,27 @@
 
 `du-exporter` is a Go program designed to mimic the functionality of the Unix `du` command, specifically for exporting Prometheus metrics related to subfolder disk usage. It scans a specified root directory and its subfolders, collecting metrics such as:
 
-*   **File Count:** Number of files in each subfolder.
-*   **Total Size:** Total size of files (in bytes) within each subfolder.
-*   **Modification Times:** Newest and oldest modification times (epoch seconds) of files in each subfolder.
-*   **Disk Usage:** Total, used, and free space (in bytes and percentage) on the filesystem of the root path.
+- **File Count:** Number of files in each subfolder.
+- **Total Size:** Total size of files (in bytes) within each subfolder.
+- **Modification Times:** Newest and oldest modification times (epoch seconds) of files in each subfolder.
+- **Disk Usage:** Total, used, and free space (in bytes and percentage) on the filesystem of the root path.
 
 These metrics are exposed via an HTTP server, making them easily consumable by Prometheus. The application uses `cobra` for command-line argument parsing.
 
 ## Technologies
 
-*   **Language:** Go (version 1.26)
-*   **Metrics:** Prometheus client library (`github.com/prometheus/client_golang`)
-*   **CLI:** Cobra (`github.com/spf13/cobra`)
-*   **Containerization:** Docker
-*   **CI/CD:** GitHub Actions
+- **Language:** Go (version 1.27)
+- **Metrics:** Prometheus client library (`github.com/prometheus/client_golang`)
+- **CLI:** Cobra (`github.com/spf13/cobra`)
+- **Containerization:** Docker
+- **CI/CD:** GitHub Actions
 
 ## Building and Running
 
 ### Prerequisites
 
-*   Go (version 1.26 or later)
-*   Docker (optional, for containerized deployment)
+- Go (version 1.27 or later)
+- Docker (optional, for containerized deployment)
 
 ### Build
 
