@@ -50,34 +50,45 @@ func scanSubfolder(root, subfolder string, entry os.DirEntry, logger *zap.Logger
 	var size int64
 	var newest, oldest int64
 
-	err := filepath.Walk(subfolder, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			count++
-			size += info.Size()
-			mtime := info.ModTime().Unix()
-			if newest == 0 || mtime > newest {
-				newest = mtime
-			}
-			if oldest == 0 || mtime < oldest {
-				oldest = mtime
-			}
-		}
-		return nil
-	})
-
-	if err != nil {
-		logger.Error("Error scanning subfolder", zap.String("subfolder", subfolder), zap.Error(err))
-		scanErrors.Inc()
-		return
-	}
+	walkDir(subfolder, &count, &size, &newest, &oldest, logger)
 
 	fileCount.WithLabelValues(root, entry.Name()).Set(float64(count))
 	totalSize.WithLabelValues(root, entry.Name()).Set(float64(size))
 	if count > 0 {
 		newestMTime.WithLabelValues(root, entry.Name()).Set(float64(newest))
 		oldestMTime.WithLabelValues(root, entry.Name()).Set(float64(oldest))
+	}
+}
+
+func walkDir(dir string, count *int, size *int64, newest *int64, oldest *int64, logger *zap.Logger) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		logger.Error("Error reading directory", zap.String("dir", dir), zap.Error(err))
+		scanErrors.Inc()
+		return
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			walkDir(filepath.Join(dir, entry.Name()), count, size, newest, oldest, logger)
+			continue
+		}
+
+		info, err := entry.Info()
+		if err != nil {
+			logger.Error("Error reading file info", zap.String("path", filepath.Join(dir, entry.Name())), zap.Error(err))
+			scanErrors.Inc()
+			continue
+		}
+
+		*count++
+		*size += info.Size()
+		mtime := info.ModTime().Unix()
+		if *newest == 0 || mtime > *newest {
+			*newest = mtime
+		}
+		if *oldest == 0 || mtime < *oldest {
+			*oldest = mtime
+		}
 	}
 }
