@@ -10,7 +10,7 @@ var (
 			Name: "du_subfolder_file_count",
 			Help: "Number of files in a subfolder",
 		},
-		[]string{"folder"},
+		[]string{"root", "folder"},
 	)
 
 	totalSize = prometheus.NewGaugeVec(
@@ -18,7 +18,7 @@ var (
 			Name: "du_subfolder_total_size_bytes",
 			Help: "Total size of files in a subfolder (bytes)",
 		},
-		[]string{"folder"},
+		[]string{"root", "folder"},
 	)
 
 	newestMTime = prometheus.NewGaugeVec(
@@ -26,7 +26,7 @@ var (
 			Name: "du_subfolder_newest_mtime_seconds",
 			Help: "Modification time of the newest file in a subfolder (epoch seconds)",
 		},
-		[]string{"folder"},
+		[]string{"root", "folder"},
 	)
 
 	oldestMTime = prometheus.NewGaugeVec(
@@ -34,7 +34,7 @@ var (
 			Name: "du_subfolder_oldest_mtime_seconds",
 			Help: "Modification time of the oldest file in a subfolder (epoch seconds)",
 		},
-		[]string{"folder"},
+		[]string{"root", "folder"},
 	)
 
 	scanDuration = prometheus.NewHistogram(

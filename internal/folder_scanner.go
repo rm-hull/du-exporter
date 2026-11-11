@@ -8,13 +8,19 @@ import (
 	"go.uber.org/zap"
 )
 
-func ScanFolder(root string, logger *zap.Logger) {
-	fileCount.Reset()
-	totalSize.Reset()
-	newestMTime.Reset()
-	oldestMTime.Reset()
+func ScanFolder(roots []string, logger *zap.Logger) {
+	start := time.Now()
 
-	start := time.Now() // for scan duration
+	for _, root := range roots {
+		scanRoot(root, logger)
+	}
+
+	scanDuration.Observe(time.Since(start).Seconds())
+	scanCount.Inc()
+}
+
+func scanRoot(root string, logger *zap.Logger) {
+	removeRootLabels(root)
 
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -26,15 +32,20 @@ func ScanFolder(root string, logger *zap.Logger) {
 	for _, entry := range entries {
 		if entry.IsDir() {
 			subfolder := filepath.Join(root, entry.Name())
-			scanSubfolder(subfolder, entry, logger)
+			scanSubfolder(root, subfolder, entry, logger)
 		}
 	}
-
-	scanDuration.Observe(time.Since(start).Seconds())
-	scanCount.Inc()
 }
 
-func scanSubfolder(subfolder string, entry os.DirEntry, logger *zap.Logger) {
+func removeRootLabels(root string) {
+	labels := map[string]string{"root": root}
+	fileCount.DeletePartialMatch(labels)
+	totalSize.DeletePartialMatch(labels)
+	newestMTime.DeletePartialMatch(labels)
+	oldestMTime.DeletePartialMatch(labels)
+}
+
+func scanSubfolder(root, subfolder string, entry os.DirEntry, logger *zap.Logger) {
 	var count int
 	var size int64
 	var newest, oldest int64
@@ -63,10 +74,10 @@ func scanSubfolder(subfolder string, entry os.DirEntry, logger *zap.Logger) {
 		return
 	}
 
-	fileCount.WithLabelValues(entry.Name()).Set(float64(count))
-	totalSize.WithLabelValues(entry.Name()).Set(float64(size))
+	fileCount.WithLabelValues(root, entry.Name()).Set(float64(count))
+	totalSize.WithLabelValues(root, entry.Name()).Set(float64(size))
 	if count > 0 {
-		newestMTime.WithLabelValues(entry.Name()).Set(float64(newest))
-		oldestMTime.WithLabelValues(entry.Name()).Set(float64(oldest))
+		newestMTime.WithLabelValues(root, entry.Name()).Set(float64(newest))
+		oldestMTime.WithLabelValues(root, entry.Name()).Set(float64(oldest))
 	}
 }
