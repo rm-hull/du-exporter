@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func ScanFiles(root string, globs []string, logger *zap.Logger) {
+func ScanFiles(root string, globs []string, excludeList []string, logger *zap.Logger) {
 	if len(globs) == 0 {
 		if logger != nil {
 			logger.Warn("ScanFiles called with no globs; nothing to match")
@@ -24,6 +24,9 @@ func ScanFiles(root string, globs []string, logger *zap.Logger) {
 		}
 
 		if info.IsDir() {
+			if isExcluded(info.Name(), excludeList) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 

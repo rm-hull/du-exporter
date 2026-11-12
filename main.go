@@ -13,28 +13,29 @@ import (
 	"go.uber.org/zap"
 )
 
-func runService(rootPaths []string, fileGlobs []string, intervalSec int, port int, limitDepth int, logger *zap.Logger) {
+func runService(rootPaths []string, fileGlobs []string, excludeList []string, intervalSec int, port int, limitDepth int, logger *zap.Logger) {
 	logger.Info("Starting service",
 		zap.Strings("roots", rootPaths),
 		zap.Int("interval", intervalSec),
 		zap.Int("limitDepth", limitDepth),
+		zap.Strings("exclude", excludeList),
 	)
 
 	go func() {
-		internal.ScanFolder(rootPaths, limitDepth, logger)
+		internal.ScanFolder(rootPaths, limitDepth, excludeList, logger)
 		for _, root := range rootPaths {
 			internal.UpdateDiskMetrics(root, logger)
-			internal.ScanFiles(root, fileGlobs, logger)
+			internal.ScanFiles(root, fileGlobs, excludeList, logger)
 		}
 
 		ticker := time.NewTicker(time.Duration(intervalSec) * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {
-			internal.ScanFolder(rootPaths, limitDepth, logger)
+			internal.ScanFolder(rootPaths, limitDepth, excludeList, logger)
 			for _, root := range rootPaths {
 				internal.UpdateDiskMetrics(root, logger)
-				internal.ScanFiles(root, fileGlobs, logger)
+				internal.ScanFiles(root, fileGlobs, excludeList, logger)
 			}
 		}
 	}()
@@ -55,6 +56,7 @@ func main() {
 	var port int
 	var limitDepth int
 	var fileGlobs []string
+	var excludeList []string
 
 	logger, err := zap.NewProduction()
 	if err != nil {
@@ -71,7 +73,7 @@ func main() {
 		Use:   "du-exporter",
 		Short: "Expose Prometheus metrics for files in subfolders",
 		Run: func(cmd *cobra.Command, args []string) {
-			runService(rootPaths, fileGlobs, intervalSec, port, limitDepth, logger)
+			runService(rootPaths, fileGlobs, excludeList, intervalSec, port, limitDepth, logger)
 		},
 	}
 
@@ -80,6 +82,7 @@ func main() {
 	rootCmd.Flags().IntVar(&port, "port", 8080, "Port to start the server on")
 	rootCmd.Flags().IntVar(&limitDepth, "limit-depth", 1, "Maximum folder depth for metrics (1 = top-level subfolders only)")
 	rootCmd.Flags().StringArrayVar(&fileGlobs, "glob", []string{"**/*.db"}, "File glob patterns to include (can specify multiple)")
+	rootCmd.Flags().StringArrayVar(&excludeList, "exclude", []string{}, "Subdirectory names to exclude from scanning (can specify multiple)")
 
 	if err := rootCmd.Execute(); err != nil {
 		logger.Fatal("Failed to execute command", zap.Error(err))

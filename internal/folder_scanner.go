@@ -9,18 +9,27 @@ import (
 	"go.uber.org/zap"
 )
 
-func ScanFolder(roots []string, maxDepth int, logger *zap.Logger) {
+func isExcluded(name string, excludeList []string) bool {
+	for _, excluded := range excludeList {
+		if name == excluded {
+			return true
+		}
+	}
+	return false
+}
+
+func ScanFolder(roots []string, maxDepth int, excludeList []string, logger *zap.Logger) {
 	start := time.Now()
 
 	for _, root := range roots {
-		scanRoot(root, maxDepth, logger)
+		scanRoot(root, maxDepth, excludeList, logger)
 	}
 
 	scanDuration.Observe(time.Since(start).Seconds())
 	scanCount.Inc()
 }
 
-func scanRoot(root string, maxDepth int, logger *zap.Logger) {
+func scanRoot(root string, maxDepth int, excludeList []string, logger *zap.Logger) {
 	removeRootLabels(root)
 	removeFolderLabels(root)
 
@@ -33,8 +42,11 @@ func scanRoot(root string, maxDepth int, logger *zap.Logger) {
 
 	for _, entry := range entries {
 		if entry.IsDir() {
+			if isExcluded(entry.Name(), excludeList) {
+				continue
+			}
 			subfolder := filepath.Join(root, entry.Name())
-			scanSubfolder(root, subfolder, entry.Name(), 1, maxDepth, logger)
+			scanSubfolder(root, subfolder, entry.Name(), 1, maxDepth, excludeList, logger)
 		}
 	}
 }
@@ -55,7 +67,7 @@ func removeFolderLabels(root string) {
 	folderOldestMTime.DeletePartialMatch(labels)
 }
 
-func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, logger *zap.Logger) (int, int64, int64, int64) {
+func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, excludeList []string, logger *zap.Logger) (int, int64, int64, int64) {
 	var count int
 	var size int64
 	var newest, oldest int64
@@ -69,9 +81,12 @@ func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, logg
 
 	for _, entry := range entries {
 		if entry.IsDir() {
+			if isExcluded(entry.Name(), excludeList) {
+				continue
+			}
 			subRelPath := filepath.Join(relPath, entry.Name())
 			subFullPath := filepath.Join(fullPath, entry.Name())
-			subCount, subSize, subNewest, subOldest := scanSubfolder(root, subFullPath, subRelPath, depth+1, maxDepth, logger)
+			subCount, subSize, subNewest, subOldest := scanSubfolder(root, subFullPath, subRelPath, depth+1, maxDepth, excludeList, logger)
 			count += subCount
 			size += subSize
 			if subNewest > 0 && (newest == 0 || subNewest > newest) {
