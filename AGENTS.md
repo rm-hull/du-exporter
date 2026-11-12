@@ -48,7 +48,8 @@ All metrics are prefixed with `du_`. They fall into three groups:
 - **Label naming** — use `folder` for subfolder names, `path` for filesystem paths.
 - **Error handling** — log errors with `zap.Error(err)` and increment `scanErrors`. Do not panic or exit on scan errors.
 - **Logger parameter** — every function in `internal/` accepts `*zap.Logger` as its last parameter. Pass it through; never create a new logger inside a function.
-- **No tests exist** — the project currently has no `*_test.go` files. If adding tests, place them alongside the source file (e.g., `internal/folder_scanner_test.go`).
+- **Test-first development** — any new functionality must be driven by a test first. Write the test before implementing the feature, following the patterns in existing `*_test.go` files.
+- **Test patterns** — use `t.TempDir()` for filesystem setup, `prometheus.DefaultGatherer.Gather()` with `client_model/go` proto types to read metric values, and delta-based assertions for counters to handle global Prometheus state.
 
 ## Building and Running
 
@@ -85,4 +86,4 @@ GitHub Actions (`.github/workflows/build.yml`):
 - **Add a new metric**: Define it in `internal/metrics.go` and register it in `init()`. Then set it from the appropriate scanner.
 - **Change scan behavior**: Modify the corresponding function in `internal/`. The scan loop in `main.go` calls all three scanners sequentially on each tick.
 - **Add a CLI flag**: Declare the flag variable in `main()`, bind it with `rootCmd.Flags()`, and pass it to `runService()`.
-- **Add tests**: Create `*_test.go` files in `internal/`. The project has no existing tests, so there are no test patterns to follow beyond standard Go testing conventions.
+- **Add tests**: Create `*_test.go` files in `internal/` alongside the source file. Follow the patterns in `internal/folder_scanner_test.go`: use `t.TempDir()` for setup, `prometheus.DefaultGatherer.Gather()` to read metrics, and delta-based assertions for counters.
