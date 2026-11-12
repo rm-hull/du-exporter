@@ -3,24 +3,26 @@ package internal
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"go.uber.org/zap"
 )
 
-func ScanFolder(roots []string, logger *zap.Logger) {
+func ScanFolder(roots []string, maxDepth int, logger *zap.Logger) {
 	start := time.Now()
 
 	for _, root := range roots {
-		scanRoot(root, logger)
+		scanRoot(root, maxDepth, logger)
 	}
 
 	scanDuration.Observe(time.Since(start).Seconds())
 	scanCount.Inc()
 }
 
-func scanRoot(root string, logger *zap.Logger) {
+func scanRoot(root string, maxDepth int, logger *zap.Logger) {
 	removeRootLabels(root)
+	removeFolderLabels(root)
 
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -32,7 +34,7 @@ func scanRoot(root string, logger *zap.Logger) {
 	for _, entry := range entries {
 		if entry.IsDir() {
 			subfolder := filepath.Join(root, entry.Name())
-			scanSubfolder(root, subfolder, entry, logger)
+			scanSubfolder(root, subfolder, entry.Name(), 1, maxDepth, logger)
 		}
 	}
 }
@@ -45,50 +47,78 @@ func removeRootLabels(root string) {
 	oldestMTime.DeletePartialMatch(labels)
 }
 
-func scanSubfolder(root, subfolder string, entry os.DirEntry, logger *zap.Logger) {
+func removeFolderLabels(root string) {
+	labels := map[string]string{"root": root}
+	folderFileCount.DeletePartialMatch(labels)
+	folderTotalSize.DeletePartialMatch(labels)
+	folderNewestMTime.DeletePartialMatch(labels)
+	folderOldestMTime.DeletePartialMatch(labels)
+}
+
+func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, logger *zap.Logger) (int, int64, int64, int64) {
 	var count int
 	var size int64
 	var newest, oldest int64
 
-	walkDir(subfolder, &count, &size, &newest, &oldest, logger)
-
-	fileCount.WithLabelValues(root, entry.Name()).Set(float64(count))
-	totalSize.WithLabelValues(root, entry.Name()).Set(float64(size))
-	if count > 0 {
-		newestMTime.WithLabelValues(root, entry.Name()).Set(float64(newest))
-		oldestMTime.WithLabelValues(root, entry.Name()).Set(float64(oldest))
-	}
-}
-
-func walkDir(dir string, count *int, size *int64, newest *int64, oldest *int64, logger *zap.Logger) {
-	entries, err := os.ReadDir(dir)
+	entries, err := os.ReadDir(fullPath)
 	if err != nil {
-		logger.Error("Error reading directory", zap.String("dir", dir), zap.Error(err))
+		logger.Error("Error reading directory", zap.String("dir", fullPath), zap.Error(err))
 		scanErrors.Inc()
-		return
+		return 0, 0, 0, 0
 	}
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			walkDir(filepath.Join(dir, entry.Name()), count, size, newest, oldest, logger)
+			subRelPath := filepath.Join(relPath, entry.Name())
+			subFullPath := filepath.Join(fullPath, entry.Name())
+			subCount, subSize, subNewest, subOldest := scanSubfolder(root, subFullPath, subRelPath, depth+1, maxDepth, logger)
+			count += subCount
+			size += subSize
+			if subNewest > 0 && (newest == 0 || subNewest > newest) {
+				newest = subNewest
+			}
+			if subOldest > 0 && (oldest == 0 || subOldest < oldest) {
+				oldest = subOldest
+			}
 			continue
 		}
 
 		info, err := entry.Info()
 		if err != nil {
-			logger.Error("Error reading file info", zap.String("path", filepath.Join(dir, entry.Name())), zap.Error(err))
+			logger.Error("Error reading file info", zap.String("path", filepath.Join(fullPath, entry.Name())), zap.Error(err))
 			scanErrors.Inc()
 			continue
 		}
 
-		*count++
-		*size += info.Size()
+		count++
+		size += info.Size()
 		mtime := info.ModTime().Unix()
-		if *newest == 0 || mtime > *newest {
-			*newest = mtime
+		if newest == 0 || mtime > newest {
+			newest = mtime
 		}
-		if *oldest == 0 || mtime < *oldest {
-			*oldest = mtime
+		if oldest == 0 || mtime < oldest {
+			oldest = mtime
 		}
 	}
+
+	if depth <= maxDepth {
+		depthStr := strconv.Itoa(depth)
+		folderFileCount.WithLabelValues(root, relPath, depthStr).Set(float64(count))
+		folderTotalSize.WithLabelValues(root, relPath, depthStr).Set(float64(size))
+		if count > 0 {
+			folderNewestMTime.WithLabelValues(root, relPath, depthStr).Set(float64(newest))
+			folderOldestMTime.WithLabelValues(root, relPath, depthStr).Set(float64(oldest))
+		}
+	}
+
+	if depth == 1 {
+		fileCount.WithLabelValues(root, relPath).Set(float64(count))
+		totalSize.WithLabelValues(root, relPath).Set(float64(size))
+		if count > 0 {
+			newestMTime.WithLabelValues(root, relPath).Set(float64(newest))
+			oldestMTime.WithLabelValues(root, relPath).Set(float64(oldest))
+		}
+	}
+
+	return count, size, newest, oldest
 }

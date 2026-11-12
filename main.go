@@ -13,14 +13,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func runService(rootPaths []string, fileGlobs []string, intervalSec int, port int, logger *zap.Logger) {
+func runService(rootPaths []string, fileGlobs []string, intervalSec int, port int, limitDepth int, logger *zap.Logger) {
 	logger.Info("Starting service",
 		zap.Strings("roots", rootPaths),
 		zap.Int("interval", intervalSec),
+		zap.Int("limitDepth", limitDepth),
 	)
 
 	go func() {
-		internal.ScanFolder(rootPaths, logger)
+		internal.ScanFolder(rootPaths, limitDepth, logger)
 		for _, root := range rootPaths {
 			internal.UpdateDiskMetrics(root, logger)
 			internal.ScanFiles(root, fileGlobs, logger)
@@ -30,7 +31,7 @@ func runService(rootPaths []string, fileGlobs []string, intervalSec int, port in
 		defer ticker.Stop()
 
 		for range ticker.C {
-			internal.ScanFolder(rootPaths, logger)
+			internal.ScanFolder(rootPaths, limitDepth, logger)
 			for _, root := range rootPaths {
 				internal.UpdateDiskMetrics(root, logger)
 				internal.ScanFiles(root, fileGlobs, logger)
@@ -52,6 +53,7 @@ func main() {
 	var rootPaths []string
 	var intervalSec int
 	var port int
+	var limitDepth int
 	var fileGlobs []string
 
 	logger, err := zap.NewProduction()
@@ -69,13 +71,14 @@ func main() {
 		Use:   "du-exporter",
 		Short: "Expose Prometheus metrics for files in subfolders",
 		Run: func(cmd *cobra.Command, args []string) {
-			runService(rootPaths, fileGlobs, intervalSec, port, logger)
+			runService(rootPaths, fileGlobs, intervalSec, port, limitDepth, logger)
 		},
 	}
 
 	rootCmd.Flags().StringArrayVar(&rootPaths, "root", []string{"./watched"}, "Root folder to watch for files (can specify multiple)")
 	rootCmd.Flags().IntVar(&intervalSec, "interval", 300, "Scan interval in seconds")
 	rootCmd.Flags().IntVar(&port, "port", 8080, "Port to start the server on")
+	rootCmd.Flags().IntVar(&limitDepth, "limit-depth", 1, "Maximum folder depth for metrics (1 = top-level subfolders only)")
 	rootCmd.Flags().StringArrayVar(&fileGlobs, "glob", []string{"**/*.db"}, "File glob patterns to include (can specify multiple)")
 
 	if err := rootCmd.Execute(); err != nil {

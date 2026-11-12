@@ -98,6 +98,38 @@ var (
 		},
 		[]string{"path"},
 	)
+
+	folderFileCount = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_folder_file_count",
+			Help: "Number of files in a folder at a given depth (recursive)",
+		},
+		[]string{"root", "folder", "depth"},
+	)
+
+	folderTotalSize = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_folder_total_size_bytes",
+			Help: "Total size of files in a folder at a given depth (bytes, recursive)",
+		},
+		[]string{"root", "folder", "depth"},
+	)
+
+	folderNewestMTime = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_folder_newest_mtime_seconds",
+			Help: "Modification time of the newest file in a folder at a given depth (epoch seconds, recursive)",
+		},
+		[]string{"root", "folder", "depth"},
+	)
+
+	folderOldestMTime = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_folder_oldest_mtime_seconds",
+			Help: "Modification time of the oldest file in a folder at a given depth (epoch seconds, recursive)",
+		},
+		[]string{"root", "folder", "depth"},
+	)
 )
 
 func init() {
@@ -105,5 +137,6 @@ func init() {
 		fileCount, totalSize, newestMTime, oldestMTime,
 		diskTotal, diskUsed, diskFreePercent, diskUsedPercent,
 		scanDuration, scanCount, scanErrors, fileSize,
+		folderFileCount, folderTotalSize, folderNewestMTime, folderOldestMTime,
 	)
 }
