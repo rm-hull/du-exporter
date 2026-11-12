@@ -81,7 +81,7 @@
       "pluginVersion": "12.4.1",
       "targets": [
         {
-          "expr": "du_subfolder_total_size_bytes",
+          "expr": "du_folder_total_size_bytes{depth=\"1\"}",
           "legendFormat": "{{folder}}",
           "refId": "A"
         }
@@ -606,7 +606,7 @@
       "pluginVersion": "12.4.1",
       "targets": [
         {
-          "expr": "du_subfolder_file_count{folder=~\"$folder\"}",
+          "expr": "du_folder_file_count{depth=\"1\",folder=~\"$folder\"}",
           "legendFormat": "{{folder}}",
           "refId": "A"
         }
@@ -724,7 +724,7 @@
       "pluginVersion": "12.4.1",
       "targets": [
         {
-          "expr": "du_subfolder_total_size_bytes{folder=~\"$folder\"}",
+          "expr": "du_folder_total_size_bytes{depth=\"1\",folder=~\"$folder\"}",
           "legendFormat": "{{folder}}",
           "refId": "A"
         }
@@ -777,11 +777,11 @@
       "pluginVersion": "12.4.1",
       "targets": [
         {
-          "expr": "du_subfolder_newest_mtime_seconds{folder=~\"$folder\"}",
+          "expr": "du_folder_newest_mtime_seconds{depth=\"1\",folder=~\"$folder\"}",
           "refId": "A"
         },
         {
-          "expr": "du_subfolder_oldest_mtime_seconds{folder=~\"$folder\"}",
+          "expr": "du_folder_oldest_mtime_seconds{depth=\"1\",folder=~\"$folder\"}",
           "refId": "B"
         }
       ],
@@ -807,7 +807,7 @@
         "multi": true,
         "name": "folder",
         "options": [],
-        "query": "label_values(du_subfolder_file_count, folder)",
+        "query": "label_values(du_folder_file_count{depth=\"1\"}, folder)",
         "refresh": 1,
         "regexApplyTo": "value",
         "type": "query"

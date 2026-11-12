@@ -79,15 +79,17 @@ func TestScanFolder_Basic(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, nil, zap.NewNop())
 
-	count := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(1), count)
 
-	size := getMetricValue(t, "du_subfolder_total_size_bytes", map[string]string{
+	size := getMetricValue(t, "du_folder_total_size_bytes", map[string]string{
 		"root":   root,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(5), size)
 }
@@ -105,15 +107,17 @@ func TestScanFolder_ExcludedDirectories(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, []string{"excluded"}, zap.NewNop())
 
-	count := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(1), count)
 
-	assert.False(t, metricExists(t, "du_subfolder_file_count", map[string]string{
+	assert.False(t, metricExists(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "excluded",
+		"depth":  "1",
 	}), "expected excluded directory to have no metrics")
 }
 
@@ -126,9 +130,10 @@ func TestScanFolder_DepthLimiting(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, nil, zap.NewNop())
 
-	count := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "level1",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(1), count)
 
@@ -188,15 +193,17 @@ func TestScanFolder_MultipleRoots(t *testing.T) {
 
 	ScanFolder([]string{root1, root2}, 1, nil, zap.NewNop())
 
-	count1 := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count1 := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root1,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(1), count1)
 
-	count2 := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count2 := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root2,
 		"folder": "sub2",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(1), count2)
 }
@@ -209,15 +216,17 @@ func TestScanFolder_EmptySubfolder(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, nil, zap.NewNop())
 
-	count := getMetricValue(t, "du_subfolder_file_count", map[string]string{
+	count := getMetricValue(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "empty",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(0), count)
 
-	size := getMetricValue(t, "du_subfolder_total_size_bytes", map[string]string{
+	size := getMetricValue(t, "du_folder_total_size_bytes", map[string]string{
 		"root":   root,
 		"folder": "empty",
+		"depth":  "1",
 	})
 	assert.Equal(t, float64(0), size)
 }
@@ -231,15 +240,17 @@ func TestScanFolder_MtimeMetrics(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, nil, zap.NewNop())
 
-	newest := getMetricValue(t, "du_subfolder_newest_mtime_seconds", map[string]string{
+	newest := getMetricValue(t, "du_folder_newest_mtime_seconds", map[string]string{
 		"root":   root,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.NotZero(t, newest)
 
-	oldest := getMetricValue(t, "du_subfolder_oldest_mtime_seconds", map[string]string{
+	oldest := getMetricValue(t, "du_folder_oldest_mtime_seconds", map[string]string{
 		"root":   root,
 		"folder": "sub1",
+		"depth":  "1",
 	})
 	assert.NotZero(t, oldest)
 }
@@ -318,9 +329,10 @@ func TestScanFolder_LabelCleanup(t *testing.T) {
 
 	ScanFolder([]string{root}, 1, nil, zap.NewNop())
 
-	assert.False(t, metricExists(t, "du_subfolder_file_count", map[string]string{
+	assert.False(t, metricExists(t, "du_folder_file_count", map[string]string{
 		"root":   root,
 		"folder": "sub2",
+		"depth":  "1",
 	}), "expected sub2 metrics to be cleaned up after folder removal")
 }
 

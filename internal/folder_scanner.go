@@ -31,7 +31,6 @@ func ScanFolder(roots []string, maxDepth int, excludeList []string, logger *zap.
 
 func scanRoot(root string, maxDepth int, excludeList []string, logger *zap.Logger) {
 	removeRootLabels(root)
-	removeFolderLabels(root)
 
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -52,14 +51,6 @@ func scanRoot(root string, maxDepth int, excludeList []string, logger *zap.Logge
 }
 
 func removeRootLabels(root string) {
-	labels := map[string]string{"root": root}
-	fileCount.DeletePartialMatch(labels)
-	totalSize.DeletePartialMatch(labels)
-	newestMTime.DeletePartialMatch(labels)
-	oldestMTime.DeletePartialMatch(labels)
-}
-
-func removeFolderLabels(root string) {
 	labels := map[string]string{"root": root}
 	folderFileCount.DeletePartialMatch(labels)
 	folderTotalSize.DeletePartialMatch(labels)
@@ -126,15 +117,6 @@ func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, excl
 			folderOldestMTime.WithLabelValues(root, relPath, depthStr).Set(float64(oldest))
 		}
 		folderSize.WithLabelValues(relPath, root, depthStr).Set(float64(size))
-	}
-
-	if depth == 1 {
-		fileCount.WithLabelValues(root, relPath).Set(float64(count))
-		totalSize.WithLabelValues(root, relPath).Set(float64(size))
-		if count > 0 {
-			newestMTime.WithLabelValues(root, relPath).Set(float64(newest))
-			oldestMTime.WithLabelValues(root, relPath).Set(float64(oldest))
-		}
 	}
 
 	return count, size, newest, oldest

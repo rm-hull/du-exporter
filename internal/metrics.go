@@ -5,38 +5,6 @@ import (
 )
 
 var (
-	fileCount = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "du_subfolder_file_count",
-			Help: "Number of files in a subfolder",
-		},
-		[]string{"root", "folder"},
-	)
-
-	totalSize = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "du_subfolder_total_size_bytes",
-			Help: "Total size of files in a subfolder (bytes)",
-		},
-		[]string{"root", "folder"},
-	)
-
-	newestMTime = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "du_subfolder_newest_mtime_seconds",
-			Help: "Modification time of the newest file in a subfolder (epoch seconds)",
-		},
-		[]string{"root", "folder"},
-	)
-
-	oldestMTime = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "du_subfolder_oldest_mtime_seconds",
-			Help: "Modification time of the oldest file in a subfolder (epoch seconds)",
-		},
-		[]string{"root", "folder"},
-	)
-
 	scanDuration = prometheus.NewHistogram(
 		prometheus.HistogramOpts{
 			Name:    "du_scan_duration_seconds",
@@ -142,7 +110,6 @@ var (
 
 func init() {
 	prometheus.MustRegister(
-		fileCount, totalSize, newestMTime, oldestMTime,
 		diskTotal, diskUsed, diskFreePercent, diskUsedPercent,
 		scanDuration, scanCount, scanErrors, fileSize,
 		folderFileCount, folderTotalSize, folderNewestMTime, folderOldestMTime, folderSize,
