@@ -65,6 +65,7 @@ func removeFolderLabels(root string) {
 	folderTotalSize.DeletePartialMatch(labels)
 	folderNewestMTime.DeletePartialMatch(labels)
 	folderOldestMTime.DeletePartialMatch(labels)
+	folderSize.DeletePartialMatch(map[string]string{"parent_path": root})
 }
 
 func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, excludeList []string, logger *zap.Logger) (int, int64, int64, int64) {
@@ -124,6 +125,7 @@ func scanSubfolder(root, fullPath, relPath string, depth int, maxDepth int, excl
 			folderNewestMTime.WithLabelValues(root, relPath, depthStr).Set(float64(newest))
 			folderOldestMTime.WithLabelValues(root, relPath, depthStr).Set(float64(oldest))
 		}
+		folderSize.WithLabelValues(relPath, root, depthStr).Set(float64(size))
 	}
 
 	if depth == 1 {

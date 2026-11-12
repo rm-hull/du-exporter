@@ -130,6 +130,14 @@ var (
 		},
 		[]string{"root", "folder", "depth"},
 	)
+
+	folderSize = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "du_folder_size_bytes",
+			Help: "Size of a folder at a given depth (bytes, recursive)",
+		},
+		[]string{"folder", "parent_path", "depth"},
+	)
 )
 
 func init() {
@@ -137,6 +145,6 @@ func init() {
 		fileCount, totalSize, newestMTime, oldestMTime,
 		diskTotal, diskUsed, diskFreePercent, diskUsedPercent,
 		scanDuration, scanCount, scanErrors, fileSize,
-		folderFileCount, folderTotalSize, folderNewestMTime, folderOldestMTime,
+		folderFileCount, folderTotalSize, folderNewestMTime, folderOldestMTime, folderSize,
 	)
 }
