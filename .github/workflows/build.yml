@@ -20,15 +20,15 @@ jobs:
       checks: write
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Setup Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: "1.27"
 
       - name: Cache Go modules & tools
-        uses: actions/cache@v6
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -47,13 +47,13 @@ jobs:
 
       - name: Collect test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: test-reports
           path: ./test-reports/
 
       - name: Publish test results
-        uses: mikepenz/action-junit-report@v6
+        uses: mikepenz/action-junit-report@v6.7.1
         if: always()
         with:
           report_paths: "./test-reports/junit.xml"
@@ -62,13 +62,13 @@ jobs:
           detailed_summary: true
 
       - name: Upload coverage to Coveralls
-        uses: shogo82148/actions-goveralls@v1
+        uses: shogo82148/actions-goveralls@v1.11.5
         continue-on-error: true
         with:
           path-to-profile: profile.cov
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v9
+        uses: golangci/golangci-lint-action@v9.3.0
 
   docker-publish:
     concurrency:
@@ -83,13 +83,13 @@ jobs:
 
     steps:
       - name: Checkout repository with full history
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v4.4.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: "Log into registry: ${{ env.REGISTRY }}"
         if: github.event_name != 'pull_request'
@@ -101,7 +101,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -118,7 +118,7 @@ jobs:
 
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           platforms: linux/amd64 #,linux/arm64
