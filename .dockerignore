@@ -9,3 +9,8 @@ ATTRIBUTION.md
 docker-compose.yml
 generated/
 test-reports/
+du-exporter
+dashboard.json
+test.http
+.editorconfig
+AGENTS.md

@@ -1,10 +1,10 @@
+# syntax=docker/dockerfile:1
 FROM golang:1.27-alpine AS build
 
 RUN apk update && \
     apk add --no-cache ca-certificates tzdata && \
-    update-ca-certificates
-
-RUN adduser -D -g '' appuser
+    update-ca-certificates && \
+    adduser -D -g '' appuser
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN go mod download
 
 COPY . .
 
-ENV GOOS=linux
+ENV CGO_ENABLED=0 GOOS=linux
 
 RUN go build -ldflags="-w -s" -o du-exporter .
 
@@ -21,9 +21,8 @@ FROM alpine:latest AS runtime
 ENV TZ=UTC
 
 RUN apk --no-cache add curl ca-certificates tzdata && \
-    update-ca-certificates
-
-RUN adduser -D -g '' appuser
+    update-ca-certificates && \
+    adduser -D -g '' appuser
 WORKDIR /app
 
 COPY --from=build /app/du-exporter .
